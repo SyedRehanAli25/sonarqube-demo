@@ -75,6 +75,9 @@
                 <configuration>
                     <format>HTML</format>
                     <outputDirectory>${project.build.directory}</outputDirectory>
+                    <failOnError>false</failOnError> <!-- Option A: continue even if update fails -->
+                    <updateOnly>false</updateOnly>
+                    <dataDirectory>${user.home}/.dependency-check</dataDirectory>
                 </configuration>
             </plugin>
 
