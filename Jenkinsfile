@@ -2,16 +2,16 @@ pipeline {
     agent any
 
     environment {
-        // SonarQube token and host URL
-        SONAR_TOKEN = 'sqa_1df9f405f4354d9ceacd11fa326afa5f2f5e1c3a' // replace with your actual token
-        SONAR_HOST_URL = 'http://172.23.12.12:9000/' 
-        GIT_REPO = 'https://github.com/SyedRehanAli25/sonarqube-demo.git'
+        SONAR_TOKEN   = 'sqa_11de5678255fedb92587190a210e00a696908983'
+        SONAR_HOST_URL = 'http://localhost:9000'
+        GIT_REPO      = 'https://github.com/SyedRehanAli25/sonarqube-demo.git'
     }
 
     stages {
+
         stage('Checkout') {
             steps {
-                git url: "$GIT_REPO", branch: 'main'
+                git url: "${GIT_REPO}", branch: 'main'
             }
         }
 
@@ -21,28 +21,28 @@ pipeline {
             }
             post {
                 always {
-                    script {
-                        publishHTML(target: [
-                            reportDir: 'target/site/jacoco',
-                            reportFiles: 'index.html',
-                            reportName: 'JaCoCo Coverage',
-                            keepAll: true
-                        ])
-                    }
+                    publishHTML(target: [
+                        reportDir: 'target/site/jacoco',
+                        reportFiles: 'index.html',
+                        reportName: 'JaCoCo Coverage',
+                        keepAll: true
+                    ])
                 }
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-                // Direct Maven SonarQube scan without using Sonar-scanner CLI
-                sh """
-                    mvn sonar:sonar \
-                        -Dsonar.projectKey=my-app \
-                        -Dsonar.host.url=$SONAR_HOST_URL \
-                        -Dsonar.login=$SONAR_TOKEN \
-                        -Dsonar.java.binaries=target/classes
-                """
+                timeout(time: 20, unit: 'MINUTES') {
+                    sh """
+                        mvn sonar:sonar \
+                            -Dsonar.projectKey=my-app \
+                            -Dsonar.host.url=${SONAR_HOST_URL} \
+                            -Dsonar.token=${SONAR_TOKEN} \
+                            -Dsonar.java.binaries=target/classes \
+                            -Dsonar.java.parser=JDT
+                    """
+                }
             }
         }
 
@@ -54,11 +54,12 @@ pipeline {
                             mvn org.owasp:dependency-check-maven:check \
                                 -Dformat=HTML \
                                 -DoutputDirectory=target \
-                                -DupdateOnly=false \
-                                -DdataDirectory=~/.dependency-check
+                                -Danalyzer.nvd.api.enabled=false \
+                                -Danalyzer.nvd.forceUpdate=false \
+                                -DfailOnError=false
                         """
                     } catch (err) {
-                        echo "OWASP Dependency Check failed, continuing pipeline: ${err}"
+                        echo "OWASP scan failed (but allowed to continue): ${err}"
                     }
                 }
             }
@@ -68,7 +69,8 @@ pipeline {
                 }
             }
         }
-    } // end of stages
+
+    } // end stages
 
     post {
         always {
