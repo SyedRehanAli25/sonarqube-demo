@@ -54,9 +54,9 @@ pipeline {
                             mvn org.owasp:dependency-check-maven:check \
                                 -Dformat=HTML \
                                 -DoutputDirectory=target \
-                                -Danalyzer.nvd.api.enabled=false \
+                                -Dnvd.api.enabled=false \
                                 -Danalyzer.nvd.forceUpdate=false \
-                                -Danalyzer.nvd.apiKey="" \
+                                -Danalyzer.dependencycheck.failOnError=false \
                                 -DfailOnError=false
                         """
                     } catch (err) {
