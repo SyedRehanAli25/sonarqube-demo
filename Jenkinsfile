@@ -56,6 +56,7 @@ pipeline {
                                 -DoutputDirectory=target \
                                 -Danalyzer.nvd.api.enabled=false \
                                 -Danalyzer.nvd.forceUpdate=false \
+                                -Danalyzer.nvd.apiKey=""
                                 -DfailOnError=false
                         """
                     } catch (err) {
