@@ -1,4 +1,4 @@
-pipeline {
+pipeline { 
     agent any
 
     environment {
@@ -69,7 +69,16 @@ pipeline {
             }
             post {
                 always {
+
                     archiveArtifacts artifacts: 'target/dependency-check-report.html', allowEmptyArchive: true
+
+                    // ✅ Added ONLY this block (no other pipeline changes)
+                    publishHTML(target: [
+                        reportDir: 'target',
+                        reportFiles: 'dependency-check-report.html',
+                        reportName: 'Dependency-Check Report',
+                        keepAll: true
+                    ])
                 }
             }
         }
@@ -81,9 +90,6 @@ pipeline {
             junit 'target/surefire-reports/*.xml'
             echo 'Pipeline completed!'
 
-            // --------------------------
-            // EMAIL NOTIFICATION ADDED
-            // --------------------------
             emailext(
                 to: 'rehan.ali9325@gmail.com',
                 subject: "Jenkins Build: ${env.JOB_NAME} #${env.BUILD_NUMBER} - ${currentBuild.currentResult}",
@@ -98,7 +104,7 @@ pipeline {
                     <h3>Generated Reports</h3>
                     <ul>
                         <li><a href="${env.BUILD_URL}htmlreports/JaCoCo_Coverage/">JaCoCo Coverage Report</a></li>
-                        <li><a href="${env.BUILD_URL}artifact/target/dependency-check-report.html">OWASP Dependency Report</a></li>
+                        <li><a href="${env.BUILD_URL}htmlreports/Dependency-Check_Report/">OWASP Dependency Report</a></li>
                         <li><a href="${env.BUILD_URL}">Full Build Logs</a></li>
                     </ul>
 
