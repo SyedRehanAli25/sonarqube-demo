@@ -56,7 +56,7 @@ pipeline {
                                 -DoutputDirectory=target \
                                 -Danalyzer.nvd.api.enabled=false \
                                 -Danalyzer.nvd.forceUpdate=false \
-                                -Danalyzer.nvd.apiKey=""
+                                -Danalyzer.nvd.apiKey="" \
                                 -DfailOnError=false
                         """
                     } catch (err) {
@@ -77,6 +77,32 @@ pipeline {
         always {
             junit 'target/surefire-reports/*.xml'
             echo 'Pipeline completed!'
+
+            // --------------------------
+            // EMAIL NOTIFICATION ADDED
+            // --------------------------
+            emailext(
+                to: 'rehan.ali9325@gmail.com',
+                subject: "Jenkins Build: ${env.JOB_NAME} #${env.BUILD_NUMBER} - ${currentBuild.currentResult}",
+                mimeType: 'text/html',
+                body: """
+                    <h2>Jenkins Build Report</h2>
+
+                    <p><b>Job:</b> ${env.JOB_NAME}</p>
+                    <p><b>Build Number:</b> ${env.BUILD_NUMBER}</p>
+                    <p><b>Status:</b> ${currentBuild.currentResult}</p>
+
+                    <h3>Generated Reports</h3>
+                    <ul>
+                        <li><a href="${env.BUILD_URL}htmlreports/JaCoCo_Coverage/">JaCoCo Coverage Report</a></li>
+                        <li><a href="${env.BUILD_URL}artifact/target/dependency-check-report.html">OWASP Dependency Report</a></li>
+                        <li><a href="${env.BUILD_URL}">Full Build Logs</a></li>
+                    </ul>
+
+                    <p>Regards,<br/>Jenkins CI</p>
+                """,
+                attachmentsPattern: "target/dependency-check-report.html"
+            )
         }
     }
 }
