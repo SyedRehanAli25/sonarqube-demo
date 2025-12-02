@@ -55,7 +55,10 @@ pipeline {
                                 -Dformat=HTML \
                                 -DoutputDirectory=target \
                                 -Dnvd.api.enabled=false \
-                                -Danalyzer.nvd.forceUpdate=false \
+                                -Dnvd.api.modifiedUrl="" \
+                                -Dnvd.api.baseUrl="" \
+                                -DcveUrlModified="" \
+                                -DcveUrlBase="" \
                                 -Danalyzer.dependencycheck.failOnError=false \
                                 -DfailOnError=false
                         """
